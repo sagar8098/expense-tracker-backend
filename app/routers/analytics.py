@@ -19,7 +19,7 @@ def analytics(
         models.Expense.category,
         func.sum(models.Expense.amount).label("total")
     ).filter(
-        models.Expense.user_id == current_user.id
+        models.Expense.owner_id == current_user.id
     ).group_by(
         models.Expense.category
     ).all()
