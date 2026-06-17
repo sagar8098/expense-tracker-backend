@@ -1,22 +1,18 @@
 import os
 from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
-from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import sessionmaker, declarative_base
 
 DATABASE_URL = os.getenv("DATABASE_URL")
 
-# Render PostgreSQL requires SSL
-if DATABASE_URL and DATABASE_URL.startswith("postgresql://"):
+# Convert Render URL for SQLAlchemy
+if DATABASE_URL.startswith("postgresql://"):
     DATABASE_URL = DATABASE_URL.replace(
         "postgresql://",
         "postgresql+psycopg2://",
         1
     )
 
-engine = create_engine(
-    DATABASE_URL,
-    connect_args={"sslmode": "require"}
-)
+engine = create_engine(DATABASE_URL)
 
 SessionLocal = sessionmaker(
     autocommit=False,
