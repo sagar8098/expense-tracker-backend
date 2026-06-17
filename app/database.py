@@ -1,38 +1,31 @@
-from fastapi import APIRouter, Depends
-from sqlalchemy.orm import Session
-from sqlalchemy import func
+import os
 
-from app.database import get_db
-from app import models
-from app.auth import get_current_user
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker, declarative_base
 
-router = APIRouter(tags=["Dashboard"])
+DATABASE_URL = os.getenv("DATABASE_URL")
+
+if DATABASE_URL and DATABASE_URL.startswith("postgresql://"):
+    DATABASE_URL = DATABASE_URL.replace(
+        "postgresql://",
+        "postgresql+psycopg2://",
+        1
+    )
+
+engine = create_engine(DATABASE_URL)
+
+SessionLocal = sessionmaker(
+    autocommit=False,
+    autoflush=False,
+    bind=engine
+)
+
+Base = declarative_base()
 
 
-@router.get("/dashboard")
-def dashboard(
-    db: Session = Depends(get_db),
-    current_user: models.User = Depends(get_current_user)
-):
-
-    # Total expense
-    total_expense = db.query(
-        func.sum(models.Expense.amount)
-    ).filter(
-        models.Expense.owner_id == current_user.id
-    ).scalar() or 0
-
-    # User budget
-    budget = db.query(models.Budget).filter(
-        models.Budget.user_id == current_user.id
-    ).first()
-
-    monthly_budget = budget.monthly_budget if budget else 0
-
-    remaining_balance = monthly_budget - total_expense
-
-    return {
-        "total_expense": total_expense,
-        "monthly_budget": monthly_budget,
-        "remaining_balance": remaining_balance
-    }
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()

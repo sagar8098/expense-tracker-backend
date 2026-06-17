@@ -14,24 +14,20 @@ def dashboard(
     db: Session = Depends(get_db),
     current_user: models.User = Depends(get_current_user)
 ):
+    total_expense = (
+        db.query(func.sum(models.Expense.amount))
+        .filter(models.Expense.owner_id == current_user.id)
+        .scalar()
+        or 0
+    )
 
-    total_expense = db.query(
-        func.sum(models.Expense.amount)
-    ).filter(
-        models.Expense.user_id == current_user.id
-    ).scalar()
+    budget = (
+        db.query(models.Budget)
+        .filter(models.Budget.user_id == current_user.id)
+        .first()
+    )
 
-    if total_expense is None:
-        total_expense = 0
-
-    budget = db.query(models.Budget).filter(
-        models.Budget.user_id == current_user.id
-    ).first()
-
-    monthly_budget = 0
-
-    if budget:
-        monthly_budget = budget.monthly_budget
+    monthly_budget = budget.monthly_budget if budget else 0
 
     remaining_balance = monthly_budget - total_expense
 
