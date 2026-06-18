@@ -31,7 +31,9 @@ def verify_password(plain_password, hashed_password):
 def create_access_token(data: dict):
     to_encode = data.copy()
 
-    expire = datetime.utcnow() + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    expire = datetime.utcnow() + timedelta(
+        minutes=ACCESS_TOKEN_EXPIRE_MINUTES
+    )
 
     to_encode.update({"exp": expire})
 
@@ -43,8 +45,8 @@ def create_access_token(data: dict):
 
 
 def get_current_user(
-        token: str = Depends(oauth2_scheme),
-        db: Session = Depends(get_db)
+    token: str = Depends(oauth2_scheme),
+    db: Session = Depends(get_db)
 ):
     credentials_exception = HTTPException(
         status_code=401,
@@ -58,16 +60,16 @@ def get_current_user(
             algorithms=[ALGORITHM]
         )
 
-        email = payload.get("sub")
+        username = payload.get("sub")
 
-        if email is None:
+        if username is None:
             raise credentials_exception
 
     except JWTError:
         raise credentials_exception
 
     user = db.query(models.User).filter(
-        models.User.email == email
+        models.User.username == username
     ).first()
 
     if user is None:

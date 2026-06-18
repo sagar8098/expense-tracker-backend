@@ -13,8 +13,12 @@ from app.auth import (
 router = APIRouter()
 
 
+# Register User
 @router.post("/register")
-def register(user: schemas.UserCreate, db: Session = Depends(get_db)):
+def register(
+    user: schemas.UserCreate,
+    db: Session = Depends(get_db)
+):
     existing_user = db.query(models.User).filter(
         models.User.email == user.email
     ).first()
@@ -35,32 +39,42 @@ def register(user: schemas.UserCreate, db: Session = Depends(get_db)):
     db.commit()
     db.refresh(new_user)
 
-    return {"message": "User Registered Successfully"}
+    return {
+        "message": "User Registered Successfully"
+    }
 
 
+# Login User
 @router.post("/login")
 def login(
     form_data: OAuth2PasswordRequestForm = Depends(),
     db: Session = Depends(get_db)
 ):
+    # Find user by username
     user = db.query(models.User).filter(
-        models.User.email == form_data.username
+        models.User.username == form_data.username
     ).first()
 
+    # Check if user exists
     if not user:
         raise HTTPException(
             status_code=404,
             detail="User not found"
         )
 
-    if not verify_password(form_data.password, user.password):
+    # Verify password
+    if not verify_password(
+        form_data.password,
+        user.password
+    ):
         raise HTTPException(
             status_code=401,
             detail="Invalid password"
         )
 
+    # Generate JWT token
     access_token = create_access_token(
-        data={"sub": user.email}
+        data={"sub": user.username}
     )
 
     return {
