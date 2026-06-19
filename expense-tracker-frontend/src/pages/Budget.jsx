@@ -1,9 +1,9 @@
-import { useEffect, useState } from "react";
-import API from "../services/api";
+import { useState, useEffect } from "react";
+import api from "../services/api";
 
-function Budget() {
-  const [monthlyBudget, setMonthlyBudget] = useState("");
-  const [currentBudget, setCurrentBudget] = useState(null);
+export default function Budget() {
+  const [budget, setBudget] = useState("");
+  const [currentBudget, setCurrentBudget] = useState(0);
 
   useEffect(() => {
     fetchBudget();
@@ -11,71 +11,59 @@ function Budget() {
 
   const fetchBudget = async () => {
     try {
-      const token = localStorage.getItem("token");
-
-      const response = await API.get("/budget", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      setCurrentBudget(response.data.monthly_budget);
+      const res = await api.get("/budget");
+      setCurrentBudget(res.data.monthly_budget);
     } catch (err) {
       console.log(err);
     }
   };
 
-  const createBudget = async () => {
+  const saveBudget = async () => {
     try {
-      const token = localStorage.getItem("token");
-
-      await API.post(
-        "/budget",
-        {
-          monthly_budget: parseFloat(monthlyBudget),
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-
-      alert("Budget Created Successfully");
-
+      await api.post("/budget", {
+        monthly_budget: Number(budget),
+      });
+      alert("Budget Saved Successfully");
       fetchBudget();
-
+      setBudget("");
     } catch (err) {
-      console.log(err);
-      alert("Budget already exists");
+      alert("Failed to save budget");
     }
   };
 
   return (
-    <div>
-      <h1>Budget</h1>
+    <div className="container mt-5">
+      <div
+        className="card shadow-lg mx-auto p-4"
+        style={{ maxWidth: "500px", borderRadius: "20px" }}
+      >
+        <h2 className="text-center text-primary mb-4">
+          💰 Monthly Budget
+        </h2>
 
-      <h3>
-        Current Budget:
-        ₹{currentBudget || 0}
-      </h3>
+        <div className="card bg-light p-3 mb-4 text-center">
+          <h4>Current Budget</h4>
+          <h2 className="text-success">₹ {currentBudget}</h2>
+        </div>
 
-      <input
-        type="number"
-        placeholder="Enter Monthly Budget"
-        value={monthlyBudget}
-        onChange={(e) =>
-          setMonthlyBudget(e.target.value)
-        }
-      />
+        <div className="mb-3">
+          <label className="form-label">Enter Monthly Budget</label>
+          <input
+            type="number"
+            className="form-control"
+            placeholder="Enter amount"
+            value={budget}
+            onChange={(e) => setBudget(e.target.value)}
+          />
+        </div>
 
-      <br /><br />
-
-      <button onClick={createBudget}>
-        Save Budget
-      </button>
+        <button
+          className="btn btn-success w-100"
+          onClick={saveBudget}
+        >
+          Save Budget
+        </button>
+      </div>
     </div>
   );
 }
-
-export default Budget;
