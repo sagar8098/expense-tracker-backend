@@ -11,7 +11,14 @@ export default function Budget() {
 
   const fetchBudget = async () => {
     try {
-      const res = await api.get("/budget");
+      const token = localStorage.getItem("token");
+
+      const res = await api.get("/budget", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
       setCurrentBudget(res.data.monthly_budget);
     } catch (err) {
       console.log(err);
@@ -20,13 +27,28 @@ export default function Budget() {
 
   const saveBudget = async () => {
     try {
-      await api.post("/budget", {
-        monthly_budget: Number(budget),
-      });
+      const token = localStorage.getItem("token");
+
+      await api.post(
+        "/budget",
+        {
+          monthly_budget: Number(budget),
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
       alert("Budget Saved Successfully");
+
       fetchBudget();
+
       setBudget("");
+
     } catch (err) {
+      console.log(err);
       alert("Failed to save budget");
     }
   };
@@ -35,7 +57,10 @@ export default function Budget() {
     <div className="container mt-5">
       <div
         className="card shadow-lg mx-auto p-4"
-        style={{ maxWidth: "500px", borderRadius: "20px" }}
+        style={{
+          maxWidth: "500px",
+          borderRadius: "20px",
+        }}
       >
         <h2 className="text-center text-primary mb-4">
           💰 Monthly Budget
@@ -43,17 +68,25 @@ export default function Budget() {
 
         <div className="card bg-light p-3 mb-4 text-center">
           <h4>Current Budget</h4>
-          <h2 className="text-success">₹ {currentBudget}</h2>
+
+          <h2 className="text-success">
+            ₹{currentBudget}
+          </h2>
         </div>
 
         <div className="mb-3">
-          <label className="form-label">Enter Monthly Budget</label>
+          <label className="form-label">
+            Enter Monthly Budget
+          </label>
+
           <input
             type="number"
             className="form-control"
             placeholder="Enter amount"
             value={budget}
-            onChange={(e) => setBudget(e.target.value)}
+            onChange={(e) =>
+              setBudget(e.target.value)
+            }
           />
         </div>
 

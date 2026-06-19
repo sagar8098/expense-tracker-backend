@@ -6,7 +6,9 @@ function AddExpense() {
   const [amount, setAmount] = useState("");
   const [category, setCategory] = useState("");
 
-  const addExpense = async () => {
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
     try {
       const token = localStorage.getItem("token");
 
@@ -29,48 +31,100 @@ function AddExpense() {
       setTitle("");
       setAmount("");
       setCategory("");
-
     } catch (err) {
+      console.log(err);
       alert("Failed to Add Expense");
     }
   };
 
   return (
     <div className="container mt-5">
+      <div
+        className="card shadow-lg border-0 p-5"
+        style={{
+          maxWidth: "700px",
+          margin: "auto",
+          borderRadius: "20px",
+          background: "#fff",
+        }}
+      >
+        <div className="text-center mb-4">
+          <h1 className="fw-bold text-primary">
+            💸 Add Expense
+          </h1>
 
-      <div className="card shadow p-4">
+          <p className="text-muted">
+            Record your daily spending easily
+          </p>
+        </div>
 
-        <h2 className="mb-4">Add Expense</h2>
+        <form onSubmit={handleSubmit}>
+          <div className="mb-4">
+            <label className="form-label fw-semibold">
+              Expense Title
+            </label>
 
-        <input
-          className="form-control mb-3"
-          placeholder="Title"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-        />
+            <input
+              type="text"
+              className="form-control form-control-lg"
+              placeholder="Enter expense title"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              required
+            />
+          </div>
 
-        <input
-          className="form-control mb-3"
-          type="number"
-          placeholder="Amount"
-          value={amount}
-          onChange={(e) => setAmount(e.target.value)}
-        />
+          <div className="mb-4">
+            <label className="form-label fw-semibold">
+              Amount (₹)
+            </label>
 
-        <input
-          className="form-control mb-3"
-          placeholder="Category"
-          value={category}
-          onChange={(e) => setCategory(e.target.value)}
-        />
+            <input
+              type="number"
+              className="form-control form-control-lg"
+              placeholder="Enter amount"
+              value={amount}
+              onChange={(e) => setAmount(e.target.value)}
+              required
+            />
+          </div>
 
-        <button
-          className="btn btn-primary"
-          onClick={addExpense}
-        >
-          Add Expense
-        </button>
+          <div className="mb-4">
+            <label className="form-label fw-semibold">
+              Category
+            </label>
 
+            <select
+              className="form-select form-select-lg"
+              value={category}
+              onChange={(e) => setCategory(e.target.value)}
+              required
+            >
+              <option value="">Select Category</option>
+              <option value="Food">🍔 Food</option>
+              <option value="Transport">🚗 Transport</option>
+              <option value="Shopping">🛒 Shopping</option>
+              <option value="Bills">💡 Bills</option>
+              <option value="Entertainment">🎬 Entertainment</option>
+              <option value="Health">❤️ Health</option>
+              <option value="Education">📚 Education</option>
+              <option value="Other">📦 Other</option>
+            </select>
+          </div>
+
+          <button
+            type="submit"
+            className="btn w-100 text-white fw-bold btn-lg shadow"
+            style={{
+              borderRadius: "12px",
+              background:
+                "linear-gradient(135deg,#667eea,#764ba2)",
+              border: "none",
+            }}
+          >
+            ➕ Add Expense
+          </button>
+        </form>
       </div>
     </div>
   );

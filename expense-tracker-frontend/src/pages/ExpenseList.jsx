@@ -36,9 +36,7 @@ function ExpenseList() {
       });
 
       alert("Expense Deleted Successfully");
-
       fetchExpenses();
-
     } catch (err) {
       alert("Delete Failed");
     }
@@ -46,38 +44,64 @@ function ExpenseList() {
 
   return (
     <div className="container mt-5">
+      <div className="mb-4">
+        <h1 className="fw-bold text-primary">
+          📋 Expense List
+        </h1>
 
-      <h1 className="mb-4">Expense List</h1>
+        <p className="text-muted">
+          View and manage all your expenses
+        </p>
+      </div>
 
       {expenses.length === 0 ? (
-        <h3>No expenses found</h3>
+        <div className="card shadow p-4 text-center">
+          <h4>No expenses found 😔</h4>
+        </div>
       ) : (
         expenses.map((expense) => (
-          <div className="card shadow mb-3" key={expense.id}>
-
+          <div
+            className="card shadow-lg border-0 mb-4"
+            style={{ borderRadius: "20px" }}
+            key={expense.id}
+          >
             <div className="card-body">
 
-              <h4>{expense.title}</h4>
+              <div className="d-flex justify-content-between align-items-center">
 
-              <h5 className="text-success">
-                ₹{expense.amount}
-              </h5>
+                <div>
+                  <h3 className="fw-bold">
+                    {expense.title}
+                  </h3>
 
-              <p>{expense.category}</p>
+                  <h4 className="text-success">
+                    ₹{expense.amount}
+                  </h4>
 
-              <Link
-                to={`/edit-expense/${expense.id}`}
-                className="btn btn-warning me-2"
-              >
-                Edit
-              </Link>
+                  <span className="badge bg-info fs-6">
+                    {expense.category}
+                  </span>
+                </div>
 
-              <button
-                className="btn btn-danger"
-                onClick={() => deleteExpense(expense.id)}
-              >
-                Delete
-              </button>
+                <div>
+                  <Link
+                    to={`/edit-expense/${expense.id}`}
+                    className="btn btn-warning me-2"
+                  >
+                    ✏️ Edit
+                  </Link>
+
+                  <button
+                    className="btn btn-danger"
+                    onClick={() =>
+                      deleteExpense(expense.id)
+                    }
+                  >
+                    🗑 Delete
+                  </button>
+                </div>
+
+              </div>
 
             </div>
           </div>
